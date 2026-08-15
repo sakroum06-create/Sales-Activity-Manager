@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sales Activity Manager</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #dbeafe;
+    --success: #16a34a;
+    --success-light: #dcfce7;
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+    --warning: #d97706;
+    --warning-light: #fef3c7;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --white: #ffffff;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07),0 2px 4px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1),0 4px 6px rgba(0,0,0,0.05);
+    --shadow-xl: 0 20px 40px rgba(0,0,0,0.15);
+    --radius: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 24px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--gray-100);color:var(--gray-800);min-height:100vh;font-size:14px;line-height:1.5;}
+
+  .app-container{min-height:100vh;display:flex;flex-direction:column;}
+  .top-nav{background:var(--white);border-bottom:1px solid var(--gray-200);padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+  .nav-brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:16px;color:var(--primary);}
+  .nav-brand-icon{width:36px;height:36px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;box-shadow:0 2px 8px rgba(37,99,235,.3);}
+  .nav-user{display:flex;align-items:center;gap:10px;}
+  .nav-user-name{font-size:13px;font-weight:600;color:var(--gray-700);}
+  .nav-user-role{font-size:11px;color:var(--gray-500);background:var(--gray-100);padding:2px 10px;border-radius:20px;border:1px solid var(--gray-200);}
+  .btn-logout{background:none;border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:7px 14px;font-size:12px;font-weight:600;color:var(--gray-600);cursor:pointer;transition:all .2s;font-family:inherit;display:flex;align-items:center;gap:6px;}
+  .btn-logout:hover{background:var(--danger-light);border-color:var(--danger);color:var(--danger);}
+  .app-body{display:flex;flex:1;}
+
+  .sidebar{width:230px;background:var(--white);border-left:1px solid var(--gray-200);padding:20px 0;min-height:calc(100vh - 60px);position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;flex-shrink:0;}
+  .sidebar-section{margin-bottom:6px;}
+  .sidebar-label{font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.08em;padding:10px 18px 5px;}
+  .sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;transition:all .15s;color:var(--gray-600);font-size:13px;font-weight:500;margin:1px 8px;border-radius:var(--radius);}
+  .sidebar-item:hover{background:var(--gray-50);color:var(--primary);}
+  .sidebar-item.active{background:var(--primary-light);color:var(--primary);font-weight:700;box-shadow:0 1px 4px rgba(37,99,235,.15);}
+  .sidebar-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:all .15s;}
+  .sidebar-item:hover .sidebar-icon{background:var(--primary-light);}
+  .sidebar-item.active .sidebar-icon{background:var(--primary);color:white;}
+  .main-content{flex:1;padding:28px;overflow-x:hidden;}
+
+  /* LOGIN */
+  .login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden;background:#0f172a;}
+  .login-bg{position:absolute;inset:0;overflow:hidden;}
+  .login-bg-circle{position:absolute;border-radius:50%;filter:blur(80px);opacity:.4;}
+  .login-bg-circle:nth-child(1){width:500px;height:500px;background:radial-gradient(circle,#3b82f6,transparent);top:-100px;right:-100px;}
+  .login-bg-circle:nth-child(2){width:400px;height:400px;background:radial-gradient(circle,#7c3aed,transparent);bottom:-80px;left:-80px;}
+  .login-bg-circle:nth-child(3){width:300px;height:300px;background:radial-gradient(circle,#06b6d4,transparent);top:50%;left:50%;transform:translate(-50%,-50%);}
+  .login-card{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-2xl);padding:44px 36px;width:100%;max-width:420px;position:relative;z-index:1;box-shadow:0 25px 50px rgba(0,0,0,.4);}
+  .login-logo{text-align:center;margin-bottom:36px;}
+  .login-logo-icon{width:72px;height:72px;background:linear-gradient(135deg,#2563eb,#7c3aed);border-radius:20px;display:inline-flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:20px;box-shadow:0 8px 24px rgba(37,99,235,.5);}
+  .login-title{font-size:24px;font-weight:800;color:#fff;margin-bottom:6px;}
+  .login-subtitle{font-size:13px;color:rgba(255,255,255,.5);}
+  .login-form-label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;}
+  .login-input-wrap{position:relative;margin-bottom:16px;}
+  .login-input-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.35);pointer-events:none;}
+  .login-input{width:100%;padding:13px 44px 13px 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);border-radius:var(--radius-lg);font-size:14px;font-family:inherit;color:#fff;outline:none;transition:all .25s;}
+  .login-input:focus{border-color:rgba(99,102,241,.7);background:rgba(99,102,241,.1);box-shadow:0 0 0 3px rgba(99,102,241,.2);}
+  .login-input::placeholder{color:rgba(255,255,255,.25);}
+  .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:var(--radius-lg);font-size:15px;font-weight:700;color:white;cursor:pointer;transition:all .25s;font-family:inherit;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(37,99,235,.5);}
+
+  /* FORMS */
+  .form-group{margin-bottom:20px;}
+  .form-label{display:block;font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:6px;}
+  .form-control{width:100%;padding:10px 14px;border:1.5px solid var(--gray-300);border-radius:var(--radius);font-size:14px;font-family:inherit;transition:all .2s;background:var(--white);color:var(--gray-800);outline:none;}
+  .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+  .form-control::placeholder{color:var(--gray-400);}
+  select.form-control{cursor:pointer;}
+  .form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+  .form-col{flex:1;min-width:180px;}
+
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;text-decoration:none;white-space:nowrap;}
+  .btn-primary{background:linear-gradient(135deg,var(--primary),#4f46e5);color:white;box-shadow:0 2px 8px rgba(37,99,235,.3);}
+  .btn-primary:hover{background:linear-gradient(135deg,var(--primary-dark),#4338ca);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.4);}
+  .btn-danger{background:var(--danger);color:white;}
+  .btn-danger:hover{background:#b91c1c;}
+  .btn-outline{background:var(--white);border:1.5px solid var(--gray-200);color:var(--gray-700);}
+  .btn-outline:hover{background:var(--gray-50);border-color:var(--gray-300);}
+  .btn-sm{padding:6px 12px;font-size:12px;}
+  .btn-lg{padding:14px 28px;font-size:16px;}
+
+  /* CARDS */
+  .card{background:var(--white);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);border:1px solid var(--gray-200);margin-bottom:20px;}
+  .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
+  .card-title{font-size:16px;font-weight:700;color:var(--gray-800);display:flex;align-items:center;gap:8px;}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:16px;margin-bottom:24px;}
+  .stat-card{background:var(--white);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);border:1px solid var(--gray-200);text-align:center;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden;}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),#7c3aed);opacity:0;transition:opacity .2s;}
+  .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+  .stat-card:hover::before{opacity:1;}
+  .stat-icon{width:48px;height:48px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 12px;}
+  .stat-value{font-size:28px;font-weight:800;color:var(--gray-900);line-height:1;margin-bottom:4px;}
+  .stat-label{font-size:12px;color:var(--gray-500);font-weight:500;}
+
+  .progress-bar{width:100%;height:8px;background:var(--gray-200);border-radius:4px;overflow:hidden;margin:6px 0;}
+  .progress-fill{height:100%;border-radius:4px;transition:width .5s ease;background:linear-gradient(90deg,var(--success),#22c55e);}
+
+  .table-wrapper{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{background:var(--gray-50);padding:10px 14px;text-align:right;font-size:11px;font-weight:700;color:var(--gray-500);border-bottom:1px solid var(--gray-200);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em;}
+  tbody td{padding:12px 14px;border-bottom:1px solid var(--gray-100);color:var(--gray-700);vertical-align:middle;}
+  tbody tr:hover{background:var(--gray-50);}
+  tbody tr:last-child td{border-bottom:none;}
+
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+  .badge-active{background:var(--success-light);color:var(--success);}
+  .badge-inactive{background:var(--danger-light);color:var(--danger);}
+  .badge-pending{background:var(--warning-light);color:var(--warning);}
+  .badge-info{background:var(--primary-light);color:var(--primary);}
+  .badge-gray{background:var(--gray-100);color:var(--gray-600);}
+
+  .alert{padding:12px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .alert-success{background:var(--success-light);color:var(--success);border:1px solid #bbf7d0;}
+  .alert-error{background:var(--danger-light);color:var(--danger);border:1px solid #fecaca;}
+  .alert-info{background:var(--primary-light);color:var(--primary);border:1px solid #bfdbfe;}
+  .alert-warning{background:var(--warning-light);color:var(--warning);border:1px solid #fde68a;}
+
+  .toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;min-width:260px;max-width:380px;}
+  .toast{padding:13px 20px;border-radius:var(--radius-lg);font-size:14px;font-weight:600;box-shadow:var(--shadow-xl);animation:slideUp .3s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:10px;}
+  .toast-success{background:linear-gradient(135deg,#16a34a,#15803d);color:white;}
+  .toast-error{background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;}
+  .toast-info{background:linear-gradient(135deg,#2563eb,#4f46e5);color:white;}
+  .toast-warning{background:linear-gradient(135deg,#d97706,#b45309);color:white;}
+  .toast-icon{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px) scale(.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease;}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  .modal{background:var(--white);border-radius:var(--radius-xl);padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-xl);animation:slideDown .3s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-20px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .modal-title{font-size:18px;font-weight:700;color:var(--gray-900);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+  .modal-title-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--primary-light);}
+  .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--gray-200);flex-wrap:wrap;}
+
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+  .page-title{font-size:20px;font-weight:800;color:var(--gray-900);display:flex;align-items:center;gap:10px;}
+  .page-title-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;background:linear-gradient(135deg,var(--primary-light),#ede9fe);}
+  .page-subtitle{font-size:13px;color:var(--gray-500);margin-top:3px;}
+
+  .filter-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .filter-row .form-control{flex:1;min-width:140px;max-width:200px;}
+
+  /* ═══════ COMMERCIAL - NEW MODERN DESIGN ═══════ */
+  
+  .commercial-header{background:linear-gradient(135deg,#1e40af 0%,#2563eb 50%,#7c3aed 100%);border-radius:var(--radius-xl);padding:28px;color:white;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(37,99,235,.35);}
+  .commercial-header::before{content:'';position:absolute;top:-40px;left:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .commercial-header::after{content:'';position:absolute;bottom:-60px;right:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.04);}
+  .commercial-greeting{font-size:14px;opacity:.8;margin-bottom:4px;}
+  .commercial-name{font-size:24px;font-weight:800;margin-bottom:18px;}
+  .commercial-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+  .commercial-meta-item{display:flex;align-items:center;gap:6px;font-size:13px;opacity:.9;background:rgba(255,255,255,.15);padding:7px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.1);}
+  .commercial-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .commercial-stat{background:rgba(255,255,255,.12);border-radius:var(--radius);padding:14px;text-align:center;border:1px solid rgba(255,255,255,.08);}
+  .commercial-stat-value{font-size:24px;font-weight:800;display:block;line-height:1;}
+  .commercial-stat-label{font-size:11px;opacity:.75;margin-top:4px;display:block;font-weight:500;}
+
+  /* Client Cards - Modern Grid */
+  .client-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:8px;}
+  
+  .client-card{background:var(--white);border-radius:var(--radius-xl);border:1.5px solid var(--gray-200);overflow:hidden;transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:var(--shadow-sm);}
+  .client-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+  .client-card.expanded{border-color:var(--primary);box-shadow:0 8px 24px rgba(37,99,235,.15);}
+  
+  .client-card-header{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;transition:background .2s;}
+  .client-card-header:hover{background:var(--gray-50);}
+  
+  .client-avatar{width:52px;height:52px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;background:linear-gradient(135deg,var(--primary-light),#ede9fe);}
+  .client-avatar .icon{font-size:26px;}
+  
+  .client-info{flex:1;min-width:0;}
+  .client-name{font-size:16px;font-weight:700;color:var(--gray-900);}
+  .client-sub{font-size:12px;color:var(--gray-400);margin-top:2px;display:flex;align-items:center;gap:6px;}
+  
+  .client-stats{display:flex;gap:12px;align-items:center;flex-shrink:0;}
+  .client-stat-item{text-align:center;padding:4px 8px;}
+  .client-stat-item .num{font-size:15px;font-weight:700;color:var(--gray-700);display:block;}
+  .client-stat-item .lbl{font-size:9px;color:var(--gray-400);text-transform:uppercase;letter-spacing:.04em;}
+  
+  .client-toggle{width:32px;height:32px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:14px;transition:transform .3s;flex-shrink:0;color:var(--gray-500);}
+  .client-card.expanded .client-toggle{transform:rotate(180deg);background:var(--primary-light);color:var(--primary);}
+  
+  .client-products{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.34,1.56,.64,1),padding .3s ease;padding:0 20px;}
+  .client-card.expanded .client-products{max-height:2000px;padding:0 20px 20px 20px;}
+  
+  .product-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;margin-bottom:8px;border-radius:var(--radius-lg);background:var(--gray-50);border:1px solid var(--gray-100);transition:all .2s;}
+  .product-item:hover{background:var(--white);border-color:var(--gray-200);}
+  .product-item.pending{border-right:4px solid var(--warning);}
+  .product-item.active{border-right:4px solid var(--success);background:var(--success-light);}
+  .product-item.inactive{border-right:4px solid var(--danger);background:var(--danger-light);}
+  
+  .product-info{display:flex;align-items:center;gap:10px;}
+  .product-icon{width:36px;height:36px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--white);box-shadow:var(--shadow-sm);}
+  .product-name{font-size:14px;font-weight:600;color:var(--gray-800);}
+  .product-status{font-size:11px;font-weight:500;margin-right:8px;}
+  
+  .product-actions{display:flex;gap:6px;flex-shrink:0;}
+  
+  .btn-action{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:none;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;}
+  .btn-action:hover{transform:scale(1.04);}
+  .btn-action:active{transform:scale(.96);}
+  .btn-action.active{background:linear-gradient(135deg,#16a34a,#15803d);color:white;box-shadow:0 2px 8px rgba(22,163,74,.3);}
+  .btn-action.active:hover{box-shadow:0 4px 12px rgba(22,163,74,.4);}
+  .btn-action.active.current{opacity:.5;transform:none;cursor:default;box-shadow:none;}
+  .btn-action.inactive{background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;box-shadow:0 2px 8px rgba(220,38,38,.3);}
+  .btn-action.inactive:hover{box-shadow:0 4px 12px rgba(220,38,38,.4);}
+  .btn-action.inactive.current{opacity:.5;transform:none;cursor:default;box-shadow:none;}
+  .btn-action .icon{font-size:12px;}
+
+  .sync-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+  .sync-info{font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:6px;font-weight:500;}
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--success);}
+  .sync-dot.offline{background:var(--danger);animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+  .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#7c3aed);display:inline-flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0;}
+
+  .empty-state{text-align:center;padding:48px 20px;}
+  .empty-state-icon{font-size:48px;margin-bottom:16px;display:block;}
+  .empty-state-title{font-size:16px;font-weight:700;color:var(--gray-600);margin-bottom:6px;}
+  .empty-state-desc{font-size:13px;color:var(--gray-400);}
+
+  .offline-bar{background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;text-align:center;padding:9px;font-size:13px;font-weight:600;display:none;}
+  .offline-bar.show{display:block;}
+  .pending-count{background:var(--warning);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:2px 7px;}
+
+  .page{animation:pageIn .2s ease;}
+  @keyframes pageIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* Commercial Search */
+  .commercial-search-bar{background:var(--white);border-radius:var(--radius-lg);border:1.5px solid var(--gray-200);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-sm);}
+  .commercial-search-bar input{flex:1;border:none;outline:none;font-size:14px;font-family:inherit;color:var(--gray-800);background:transparent;}
+  .commercial-search-bar input::placeholder{color:var(--gray-400);}
+  .commercial-search-icon{color:var(--gray-400);flex-shrink:0;}
+  .commercial-search-clear{background:var(--gray-100);border:none;border-radius:6px;padding:4px 8px;font-size:12px;color:var(--gray-500);cursor:pointer;font-family:inherit;}
+  .commercial-search-clear:hover{background:var(--gray-200);}
+
+  @media(max-width:768px){
+    .sidebar{display:none;}
+    .main-content{padding:14px;}
+    .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .commercial-stats-row{grid-template-columns:repeat(2,1fr);}
+    .page-header{flex-direction:column;align-items:flex-start;}
+    .filter-row .form-control{max-width:100%;}
+    .modal{padding:20px;}
+    table{font-size:12px;}
+    thead th,tbody td{padding:8px 10px;}
+    .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--gray-200);z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.08);}
+    .mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;color:var(--gray-400);font-size:10px;font-weight:600;transition:color .2s;gap:3px;}
+    .mobile-nav-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;}
+    .mobile-nav-item.active{color:var(--primary);}
+    .mobile-nav-item.active .mobile-nav-icon{background:var(--primary-light);}
+    .app-body{padding-bottom:70px;}
+    .client-card-header{padding:14px 16px;flex-wrap:wrap;}
+    .client-stats{gap:8px;}
+    .client-stat-item .num{font-size:13px;}
+    .product-item{flex-wrap:wrap;gap:8px;}
+    .product-actions{width:100%;justify-content:flex-start;}
+    .btn-action{padding:5px 12px;font-size:11px;}
+  }
+  @media(min-width:769px){.mobile-nav{display:none;}}
+  .hidden{display:none!important;}
+  .text-center{text-align:center;}
+  .text-success{color:var(--success);}
+  .text-danger{color:var(--danger);}
+  .text-muted{color:var(--gray-500);}
+</style>
+</head>
+<body>
+
+<div class="offline-bar" id="offlineBar">لا يوجد اتصال بالإنترنت — سيتم حفظ التغييرات محلياً</div>
+<div class="toast-container" id="toastContainer"></div>
+<div id="modalContainer"></div>
+
+<!-- APP -->
+<div class="app-container hidden" id="appContainer">
+  <nav class="top-nav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <span>Sales Activity Manager</span>
+    </div>
+    <div class="nav-user">
+      <div>
+        <div class="nav-user-name" id="navUserName"></div>
+        <div class="nav-user-role" id="navUserRole"></div>
+      </div>
+      <button class="btn-logout" onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        خروج
+      </button>
+    </div>
+  </nav>
+  <div class="app-body">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">الرئيسية</div>
+        <div class="sidebar-item" data-page="dashboard" onclick="navigate('dashboard')">
+          <div class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+          لوحة التحكم
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">برامج العمل</div>
+        <div class="sidebar-item" data-page="assignments" onclick="navigate('assignments')">
+          <div class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          برامج العمل
+        </div>
+        <div class="sidebar-item" data-page="create-assignment" onclick="navigate('create-assignment')">
+          <div class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+          إنشاء برنامج
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">المتابعة</div>
+        <div class="sidebar-item" data-page="results" onclick="navigate('results')">
+          <div class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          النتائج
+        </div>
+        <div class="sidebar-item" data-page="logs" onclick="navigate('logs')">
+          <div class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          سجل التغييرات
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">الإدارة</div>
+        <div class="sidebar-item" data-page="salesmen" onclick="navigate('salesmen')">
+          <div class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          المندوبون
+        </div>
+        <div class="sidebar-item" data-page="clients" onclick="navigate('clients')">
+          <div class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          الزبائن
+        </div>
+        <div class="sidebar-item" data-page="products" onclick="navigate('products')">
+          <div class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+          المنتجات
+        </div>
+        <div class="sidebar-item" data-page="regions" onclick="navigate('regions')">
+          <div class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
+          المناطق
+        </div>
+      </div>
+    </aside>
+    <main class="main-content" id="mainContent"></main>
+  </div>
+  <nav class="mobile-nav" id="mobileNav">
+    <div class="mobile-nav-item" data-mob="dashboard" onclick="navigate('dashboard')">
+      <div class="mobile-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+      الرئيسية
+    </div>
+    <div class="mobile-nav-item" data-mob="assignments" onclick="navigate('assignments')">
+      <div class="mobile-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      برامج
+    </div>
+    <div class="mobile-nav-item" data-mob="results" onclick="navigate('results')">
+      <div class="mobile-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      النتائج
+    </div>
+    <div class="mobile-nav-item" data-mob="salesmen" onclick="navigate('salesmen')">
+      <div class="mobile-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      مندوبون
+    </div>
+    <div class="mobile-nav-item" data-mob="products" onclick="navigate('products')">
+      <div class="mobile-nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+      منتجات
+    </div>
+  </nav>
+</div>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-page">
+    <div class="login-bg">
+      <div class="login-bg-circle"></div>
+      <div class="login-bg-circle"></div>
+      <div class="login-bg-circle"></div>
+    </div>
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-icon">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="login-title">Sales Activity Manager</div>
+        <div class="login-subtitle">نظام متابعة فريق المبيعات</div>
+      </div>
+      <div id="loginAlert"></div>
+      <div>
+        <label class="login-form-label">اسم المستخدم</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <input type="text" class="login-input" id="loginUsername" placeholder="أدخل اسم المستخدم" autocomplete="username">
+        </div>
+      </div>
+      <div>
+        <label class="login-form-label">كلمة المرور</label>
+        <div class="login-input-wrap">
+          <span class="login-input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <input type="password" class="login-input" id="loginPassword" placeholder="أدخل كلمة المرور" autocomplete="current-password">
+        </div>
+      </div>
+      <button class="login-btn" onclick="login()">
+        تسجيل الدخول
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════ DB ══════ */
+const DB_KEY='sam_v6';
+function initDB(){
+  if(!localStorage.getItem(DB_KEY)){
+    saveDB({users:[{id:'u1',username:'superviseur',password:'admin123',role:'supervisor',name:'المشرف العام',created_at:now()}],
+      salesmen:[],regions:[],clients:[],products:[],daily_assignments:[],assignment_items:[],activity_logs:[],sync_queue:[],last_sync:null});
+  }
+  const db=getDB();
+  ['users','salesmen','regions','clients','products','daily_assignments','assignment_items','activity_logs','sync_queue'].forEach(t=>{if(!db[t])db[t]=[];});
+  if(db.last_sync===undefined)db.last_sync=null;saveDB(db);
+}
+function getDB(){return JSON.parse(localStorage.getItem(DB_KEY)||'{}');}
+function saveDB(db){localStorage.setItem(DB_KEY,JSON.stringify(db));}
+function uid(){return'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,8);}
+function now(){return new Date().toISOString();}
+function algeriaDate(){return new Intl.DateTimeFormat('fr-CA',{timeZone:'Africa/Algiers',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
+function fmtDate(s){if(!s)return'—';try{return new Date(s).toLocaleDateString('ar-DZ',{timeZone:'Africa/Algiers',year:'numeric',month:'short',day:'numeric'});}catch{return s;}}
+function fmtDT(s){if(!s)return'—';try{return new Date(s).toLocaleString('ar-DZ',{timeZone:'Africa/Algiers',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}catch{return s;}}
+
+/* ══════ AUTH ══════ */
+let CU=null;
+function login(){
+  const u=document.getElementById('loginUsername').value.trim();
+  const p=document.getElementById('loginPassword').value;
+  if(!u||!p){loginAlert('الرجاء إدخال البيانات','error');return;}
+  const db=getDB();const user=db.users.find(x=>x.username===u&&x.password===p);
+  if(!user){loginAlert('اسم المستخدم أو كلمة المرور غير صحيحة','error');return;}
+  CU=user;sessionStorage.setItem('sam_cu',JSON.stringify(user));startApp(user);
+}
+function logout(){
+  CU=null;sessionStorage.removeItem('sam_cu');
+  document.getElementById('appContainer').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('loginUsername').value='';document.getElementById('loginPassword').value='';
+}
+function checkSession(){
+  const s=sessionStorage.getItem('sam_cu');if(!s)return false;
+  const u=JSON.parse(s);const db=getDB();const fresh=db.users.find(x=>x.id===u.id);if(!fresh)return false;
+  CU=fresh;startApp(fresh);return true;
+}
+function loginAlert(msg,type){
+  const el=document.getElementById('loginAlert');
+  el.innerHTML=`<div class="alert alert-${type}" style="margin-bottom:16px;">${msg}</div>`;
+  setTimeout(()=>{el.innerHTML='';},4000);
+}
+
+/* ══════ START ══════ */
+function startApp(user){
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('appContainer').classList.remove('hidden');
+  document.getElementById('navUserName').textContent=user.name||user.username;
+  document.getElementById('navUserRole').textContent=user.role==='supervisor'?'مشرف':'مندوب';
+  if(user.role==='supervisor'){
+    document.getElementById('sidebar').style.display='';
+    document.getElementById('mobileNav').style.display='';
+    navigate('dashboard');
+  } else {
+    document.getElementById('sidebar').style.display='none';
+    document.getElementById('mobileNav').style.display='none';
+    navigate('commercial');
+  }
+  setupOffline();processSyncQueue();
+}
+
+/* ══════ NAV ══════ */
+let PAGE='';
+function navigate(page){
+  PAGE=page;
+  document.querySelectorAll('.sidebar-item').forEach(el=>el.classList.remove('active'));
+  const si=document.querySelector(`.sidebar-item[data-page="${page}"]`);if(si)si.classList.add('active');
+  document.querySelectorAll('.mobile-nav-item').forEach(el=>el.classList.remove('active'));
+  const mi=document.querySelector(`.mobile-nav-item[data-mob="${page}"]`);if(mi)mi.classList.add('active');
+  const pages={dashboard:renderDashboard,assignments:renderAssignments,'create-assignment':()=>renderCreateAssignment(),
+    results:renderResults,logs:renderLogs,salesmen:renderSalesmen,clients:renderClients,
+    products:renderProducts,regions:renderRegions,commercial:renderCommercial};
+  document.getElementById('mainContent').innerHTML='';
+  if(pages[page])pages[page]();
+}
+
+/* ══════ TOAST ══════ */
+function toast(msg,type='success',ms=3000){
+  const c=document.getElementById('toastContainer');
+  const el=document.createElement('div');el.className=`toast toast-${type}`;
+  const ic={success:'✓',error:'✕',info:'i',warning:'!'};
+  el.innerHTML=`<div class="toast-icon">${ic[type]||'•'}</div><span>${msg}</span>`;
+  c.appendChild(el);setTimeout(()=>el.remove(),ms);
+}
+
+/* ══════ MODAL ══════ */
+function showModal(html){document.getElementById('modalContainer').innerHTML=`<div class="modal-overlay" onclick="overlayClose(event)">${html}</div>`;}
+function closeModal(){document.getElementById('modalContainer').innerHTML='';}
+function overlayClose(e){if(e.target===e.currentTarget)closeModal();}
+
+/* ══════ OFFLINE ══════ */
+let ONLINE=navigator.onLine;
+function setupOffline(){
+  window.addEventListener('online',()=>{ONLINE=true;document.getElementById('offlineBar').classList.remove('show');processSyncQueue();toast('تم استعادة الاتصال','success');});
+  window.addEventListener('offline',()=>{ONLINE=false;document.getElementById('offlineBar').classList.add('show');toast('لا يوجد اتصال — سيتم الحفظ محلياً','warning');});
+}
+function processSyncQueue(){
+  const db=getDB();const q=db.sync_queue||[];
+  if(q.length>0){const n=q.length;db.sync_queue=[];db.last_sync=now();saveDB(db);toast(`تمت مزامنة ${n} تغيير(ات)`,'success');}
+  else{db.last_sync=now();saveDB(db);}
+}
+function manualSync(){
+  const db=getDB();db.last_sync=now();saveDB(db);toast('تمت المزامنة بنجاح','success');
+  if(PAGE==='commercial')renderCommercial();else if(PAGE==='dashboard')renderDashboard();
+}
+
+/* ══════ HELPERS ══════ */
+function statusBadge(s){
+  if(s==='ACTIVE')return'<span class="badge badge-active">● ACTIVE</span>';
+  if(s==='INACTIVE')return'<span class="badge badge-inactive">● NON ACTIVE</span>';
+  return'<span class="badge badge-pending">○ بانتظار</span>';
+}
+function pct(done,total){return total>0?Math.round((done/total)*100):0;}
+function progressBar(p,h='8px'){return`<div class="progress-bar" style="height:${h}"><div class="progress-fill" style="width:${p}%"></div></div>`;}
+function mAlert(msg,type){const el=document.getElementById('mAlert');if(el)el.innerHTML=`<div class="alert alert-${type}">${msg}</div>`;}
+
+/* ══════════════════════════════════════════════════════════
+   MULTI-SELECT (minimal for create)
+══════════════════════════════════════════════════════════ */
+function buildMsHtml(id, items, selected=[], placeholder='بحث...'){
+  const selSet=new Set(selected);
+  const listHtml=items.length?items.map(item=>`
+  <label class="multi-select-item ${selSet.has(item.id)?'selected':''}" data-id="${item.id}" data-label="${(item.label||'').toLowerCase()}">
+    <input type="checkbox" value="${item.id}" ${selSet.has(item.id)?'checked':''} onchange="msTick2(this,'${id}')">
+    <div style="flex:1;">
+      <div style="font-weight:500;">${item.label}</div>
+      ${item.sub?`<div style="font-size:11px;color:var(--gray-400);">${item.sub}</div>`:''}
+    </div>
+  </label>`).join(''):
+  '<div class="multi-select-empty">لا توجد عناصر</div>';
+
+  return`<div class="multi-select-wrapper" id="ms_${id}_wrap">
+    <div class="multi-select-controls">
+      <button class="btn btn-outline btn-sm" onclick="msSelectAll2('${id}')">تحديد الكل</button>
+      <button class="btn btn-outline btn-sm" onclick="msSelectNone2('${id}')">إلغاء الكل</button>
+    </div>
+    <div class="multi-select-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gray-400);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="${placeholder}" oninput="msFilter2(this,'${id}')" autocomplete="off" style="flex:1;border:none;outline:none;font-size:13px;font-family:inherit;background:transparent;">
+      <button onclick="msClear2('${id}')" style="background:var(--gray-100);border:none;border-radius:6px;padding:4px 8px;font-size:12px;color:var(--gray-500);cursor:pointer;" id="ms_${id}_clearBtn">✕</button>
+    </div>
+    <div class="multi-select-box" id="ms_${id}_list">${listHtml}</div>
+    <div class="multi-select-count" id="ms_${id}_count">
+      <span>إجمالي: ${items.length}</span>
+      <span id="ms_${id}_selCount" style="color:var(--primary);font-weight:700;">${selSet.size} محدد</span>
+    </div>
+  </div>`;
+}
+function msFilter2(input,id){
+  const q=(input.value||'').toLowerCase().trim();
+  const clearBtn=document.getElementById(`ms_${id}_clearBtn`);
+  if(clearBtn)clearBtn.style.display=q?'':'none';
+  document.querySelectorAll(`#ms_${id}_list .multi-select-item`).forEach(el=>{
+    const label=el.getAttribute('data-label')||'';
+    el.style.display=(!q||label.includes(q))?'':'none';
+  });
+}
+function msClear2(id){
+  const wrap=document.getElementById(`ms_${id}_wrap`);
+  if(!wrap)return;
+  const inp=wrap.querySelector('.multi-select-search input');if(inp)inp.value='';
+  const clearBtn=document.getElementById(`ms_${id}_clearBtn`);if(clearBtn)clearBtn.style.display='none';
+  document.querySelectorAll(`#ms_${id}_list .multi-select-item`).forEach(el=>el.style.display='');
+}
+function msTick2(cb,id){
+  const item=cb.closest('.multi-select-item');if(item)item.classList.toggle('selected',cb.checked);
+  msUpdateCount2(id);if(typeof caPreview==='function')caPreview();
+}
+function msSelectAll2(id){
+  document.querySelectorAll(`#ms_${id}_list .multi-select-item`).forEach(el=>{
+    if(el.style.display==='none')return;
+    el.classList.add('selected');
+    const cb=el.querySelector('input[type="checkbox"]');if(cb)cb.checked=true;
+  });
+  msUpdateCount2(id);if(typeof caPreview==='function')caPreview();
+}
+function msSelectNone2(id){
+  document.querySelectorAll(`#ms_${id}_list .multi-select-item`).forEach(el=>{
+    el.classList.remove('selected');
+    const cb=el.querySelector('input[type="checkbox"]');if(cb)cb.checked=false;
+  });
+  msUpdateCount2(id);if(typeof caPreview==='function')caPreview();
+}
+function msUpdateCount2(id){
+  const list=document.getElementById(`ms_${id}_list`);if(!list)return;
+  const total=list.querySelectorAll('.multi-select-item').length;
+  const sel=list.querySelectorAll('input[type="checkbox"]:checked').length;
+  const count=document.getElementById(`ms_${id}_count`);
+  if(count){count.querySelector('span:first-child').textContent=`إجمالي: ${total}`;
+    const sc=document.getElementById(`ms_${id}_selCount`);if(sc)sc.textContent=`${sel} محدد`;}
+}
+function msGetSelected2(id){
+  const list=document.getElementById(`ms_${id}_list`);if(!list)return[];
+  return[...list.querySelectorAll('input[type="checkbox"]:checked')].map(cb=>cb.value);
+}
+
+/* ══════════════════════════════════════════════════════════
+   DASHBOARD (same as before, minimal)
+══════════════════════════════════════════════════════════ */
+function renderDashboard(){
+  const db=getDB();const today=algeriaDate();
+  const{salesmen=[],regions=[],clients=[],products=[],daily_assignments=[],assignment_items=[],last_sync}=db;
+  const todayA=daily_assignments.filter(a=>a.work_date===today);
+  const todayIds=todayA.map(a=>a.id);
+  const todayItems=assignment_items.filter(i=>todayIds.includes(i.assignment_id));
+  const tAc=todayItems.filter(i=>i.status==='ACTIVE').length;
+  const tIn=todayItems.filter(i=>i.status==='INACTIVE').length;
+  const tTot=todayItems.length;const tRate=pct(tAc+tIn,tTot);
+
+  let smRows='';
+  salesmen.forEach(sm=>{
+    const smA=todayA.filter(a=>a.salesman_id===sm.id);
+    const smIt=assignment_items.filter(i=>smA.map(x=>x.id).includes(i.assignment_id));
+    const sAc=smIt.filter(i=>i.status==='ACTIVE').length;
+    const sIn=smIt.filter(i=>i.status==='INACTIVE').length;
+    const sTot=smIt.length;const sRate=pct(sAc+sIn,sTot);
+    const reg=smA.length?(regions.find(r=>r.id===smA[0].region_id)||{}).name||'—':'—';
+    smRows+=`
+    <tr onclick="smDetail('${sm.id}')" style="cursor:pointer;">
+      <td><div style="display:flex;align-items:center;gap:10px;">
+        <div class="avatar">${(sm.name||'?')[0]}</div>
+        <div><div style="font-weight:600;">${sm.name}</div><div style="font-size:11px;color:var(--gray-400);">${sm.username}</div></div>
+      </div></td>
+      <td>${reg}</td>
+      <td class="text-center"><strong>${sTot}</strong></td>
+      <td class="text-center"><span class="badge badge-active">● ${sAc}</span></td>
+      <td class="text-center"><span class="badge badge-inactive">● ${sIn}</span></td>
+      <td style="min-width:100px;">${progressBar(sRate)}<div style="font-size:11px;text-align:center;color:var(--gray-500);font-weight:600;">${sRate}%</div></td>
+      <td style="font-size:11px;color:var(--gray-400);">${fmtDT(last_sync)}</td>
+    </tr>`;
+  });
+
+  document.getElementById('mainContent').innerHTML=`
+  <div class="page">
+    <div class="page-header">
+      <div><div class="page-title"><div class="page-title-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>لوحة التحكم</div>
+      <div class="page-subtitle">اليوم: ${fmtDate(today)}</div></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <div class="sync-info"><div class="sync-dot ${ONLINE?'':'offline'}"></div><span style="font-size:12px;font-weight:600;">${ONLINE?'متصل':'غير متصل'}</span></div>
+        <button class="btn btn-outline btn-sm" onclick="manualSync()">↻ مزامنة</button>
+        <button class="btn btn-primary btn-sm" onclick="navigate('create-assignment')">+ إنشاء برنامج</button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      ${sCard('👥','#eff6ff',salesmen.length,'المندوبون')}
+      ${sCard('🗺️','#f5f3ff',regions.length,'المناطق')}
+      ${sCard('🏪','#fefce8',clients.length,'الزبائن')}
+      ${sCard('📦','#fdf2f8',products.length,'المنتجات')}
+      ${sCard('📋','#f8fafc',tTot,'مهام اليوم')}
+      ${sCard('📈','#f0fdf4',tAc,'ACTIVE اليوم','text-success')}
+      ${sCard('📉','#fff5f5',tIn,'NON ACTIVE','text-danger')}
+      ${sCard('⚡','#fffbeb',tRate+'%','نسبة الإنجاز')}
+    </div>
+    ${tTot>0?`<div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="font-size:13px;font-weight:700;color:var(--gray-700);">إنجاز اليوم الإجمالي</span>
+        <span style="font-size:14px;font-weight:800;color:var(--primary);">${tAc+tIn} / ${tTot}</span>
+      </div>${progressBar(tRate,'12px')}
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;font-weight:600;">
+        <span class="text-success">● ACTIVE: ${tAc}</span>
+        <span style="color:var(--primary);">${tRate}%</span>
+        <span class="text-danger">NON ACTIVE: ${tIn} ●</span>
+      </div>
+    </div>`:''}
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">👥 المندوبون — نتائج اليوم</div>
+        <button class="btn btn-outline btn-sm" onclick="navigate('results')">عرض الكل</button>
+      </div>
+      ${!salesmen.length?`<div class="empty-state"><span class="empty-state-icon">👥</span><div class="empty-state-title">لا يوجد مندوبون</div>
+        <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="navigate('salesmen')">+ إضافة مندوب</button></div>`:`
+      <div class="table-wrapper"><table>
+        <thead><tr><th>المندوب</th><th>المنطقة</th><th class="text-center">المهام</th><th class="text-center">ACTIVE</th><th class="text-center">NON ACTIVE</th><th>الإنجاز</th><th>آخر مزامنة</th></tr></thead>
+        <tbody>${smRows||'<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:24px;">لا توجد مهام اليوم</td></tr>'}</tbody>
+      </table></div>`}
+    </div>
+    ${last_sync?`<div style="font-size:11px;color:var(--gray-400);text-align:left;">آخر مزامنة: ${fmtDT(last_sync)}</div>`:''}
+  </div>`;
+}
+function sCard(icon,bg,val,label,cls=''){
+  return`<div class="stat-card"><div class="stat-icon" style="background:${bg};">${icon}</div><div class="stat-value ${cls}">${val}</div><div class="stat-label">${label}</div></div>`;
+}
+
+/* salesman detail (same) */
+function smDetail(smId){
+  const db=getDB();const sm=db.salesmen.find(s=>s.id===smId);if(!sm)return;
+  const today=algeriaDate();
+  const dates=[...new Set((db.daily_assignments||[]).filter(a=>a.salesman_id===smId).map(a=>a.work_date))].sort().reverse();
+  showModal(`<div class="modal" style="max-width:700px;">
+    <div class="modal-title"><div class="modal-title-icon">👤</div>${sm.name} — تفاصيل النتائج</div>
+    <div class="form-group"><label class="form-label">اختر التاريخ</label>
+      <select class="form-control" id="smDDate" onchange="loadSmDetail('${smId}')">
+        ${dates.length?dates.map(d=>`<option value="${d}" ${d===today?'selected':''}>${fmtDate(d)}</option>`).join(''):`<option value="${today}">${fmtDate(today)}</option>`}
+      </select></div>
+    <div id="smDContent"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">إغلاق</button></div>
+  </div>`);
+  setTimeout(()=>loadSmDetail(smId),80);
+}
+function loadSmDetail(smId){
+  const db=getDB();const sel=document.getElementById('smDDate');if(!sel)return;
+  const date=sel.value;
+  const assigns=db.daily_assignments.filter(a=>a.salesman_id===smId&&a.work_date===date);
+  const ids=assigns.map(a=>a.id);const items=db.assignment_items.filter(i=>ids.includes(i.assignment_id));
+  const ac=items.filter(i=>i.status==='ACTIVE').length;const ic=items.filter(i=>i.status==='INACTIVE').length;
+  const tot=items.length;const rate=pct(ac+ic,tot);
+  const rows=items.map(item=>{
+    const cl=(db.clients||[]).find(c=>c.id===item.client_id);
+    const pr=(db.products||[]).find(p=>p.id===item.product_id);
+    const asgn=assigns.find(a=>a.id===item.assignment_id);
+    const rg=asgn?(db.regions||[]).find(r=>r.id===asgn.region_id):null;
+    return`<tr><td>${pr?pr.name:'—'}</td><td>${cl?cl.name:'—'}</td><td>${rg?rg.name:'—'}</td><td>${statusBadge(item.status)}</td><td style="font-size:11px;color:var(--gray-400);">${fmtDT(item.updated_at)}</td></tr>`;
+  }).join('');
+  document.getElementById('smDContent').innerHTML=`
+  <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+    <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value">${tot}</div><div class="stat-label">المهام</div></div>
+    <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value text-success">${ac}</div><div class="stat-label">ACTIVE</div></div>
+    <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value text-danger">${ic}</div><div class="stat-label">NON ACTIVE</div></div>
+    <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value">${rate}%</div><div class="stat-label">الإنجاز</div></div>
+  </div>${progressBar(rate,'10px')}
+  <div style="margin-top:14px;">
+  ${!tot?'<div class="empty-state"><span class="empty-state-icon">📋</span><div class="empty-state-title">لا توجد مهام</div></div>':`
+  <div class="table-wrapper"><table>
+    <thead><tr><th>المنتج</th><th>الزبون</th><th>المنطقة</th><th>الحالة</th><th>آخر تحديث</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`}</div>`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ASSIGNMENTS (shortened)
+══════════════════════════════════════════════════════════ */
+function renderAssignments(){
+  const db=getDB();const today=algeriaDate();
+  const smOpts=(db.salesmen||[]).map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  document.getElementById('mainContent').innerHTML=`
+  <div class="page">
+    <div class="page-header">
+      <div><div class="page-title"><div class="page-title-icon">📋</div>برامج العمل</div><div class="page-subtitle">إدارة وعرض برامج العمل اليومية</div></div>
+      <button class="btn btn-primary" onclick="navigate('create-assignment')">+ إنشاء برنامج</button>
+    </div>
+    <div class="card">
+      <div class="filter-row">
+        <input type="date" class="form-control" id="af_date" value="${today}" onchange="refreshAsgn()" style="max-width:180px;">
+        <select class="form-control" id="af_sm" onchange="refreshAsgn()" style="max-width:200px;"><option value="">كل المندوبين</option>${smOpts}</select>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('af_date').value='';document.getElementById('af_sm').value='';refreshAsgn()">إعادة ضبط</button>
+      </div>
+      <div id="asgnList"></div>
+    </div>
+  </div>`;
+  refreshAsgn();
+}
+function refreshAsgn(){
+  const db=getDB();
+  const fd=document.getElementById('af_date').value;const fs=document.getElementById('af_sm').value;
+  let list=db.daily_assignments||[];
+  if(fd)list=list.filter(a=>a.work_date===fd);if(fs)list=list.filter(a=>a.salesman_id===fs);
+  list=list.slice().sort((a,b)=>b.work_date.localeCompare(a.work_date));
+  if(!list.length){
+    document.getElementById('asgnList').innerHTML=`<div class="empty-state"><span class="empty-state-icon">📋</span><div class="empty-state-title">لا توجد برامج عمل</div></div>`;return;
+  }
+  document.getElementById('asgnList').innerHTML=list.map(a=>{
+    const sm=(db.salesmen||[]).find(s=>s.id===a.salesman_id);
+    const reg=(db.regions||[]).find(r=>r.id===a.region_id);
+    const items=(db.assignment_items||[]).filter(i=>i.assignment_id===a.id);
+    const ac=items.filter(i=>i.status==='ACTIVE').length;const ic=items.filter(i=>i.status==='INACTIVE').length;
+    const tot=items.length;const rate=pct(ac+ic,tot);
+    const uCl=[...new Set(items.map(i=>i.client_id))].length;const uPr=[...new Set(items.map(i=>i.product_id))].length;
+    return`<div class="card" style="margin-bottom:12px;cursor:pointer;" onclick="asgnDetail('${a.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-weight:700;font-size:15px;margin-bottom:6px;">${sm?sm.name:'—'} — ${reg?reg.name:'—'}</div>
+          <div style="font-size:12px;color:var(--gray-500);display:flex;gap:12px;flex-wrap:wrap;">
+            <span>📅 ${fmtDate(a.work_date)}</span><span>👤 ${uCl} زبون</span><span>📦 ${uPr} منتج</span><span>📋 ${tot} مهمة</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span class="badge badge-active">● ${ac}</span><span class="badge badge-inactive">● ${ic}</span>
+          <span class="badge badge-info">${rate}%</span>
+          <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editAsgn('${a.id}')">✏️</button>
+          <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();delAsgn('${a.id}')">🗑️</button>
+        </div>
+      </div>${progressBar(rate)}
+    </div>`;
+  }).join('');
+}
+function asgnDetail(id){
+  const db=getDB();const a=db.daily_assignments.find(x=>x.id===id);if(!a)return;
+  const sm=(db.salesmen||[]).find(s=>s.id===a.salesman_id);
+  const reg=(db.regions||[]).find(r=>r.id===a.region_id);
+  const items=(db.assignment_items||[]).filter(i=>i.assignment_id===id);
+  const ac=items.filter(i=>i.status==='ACTIVE').length;const ic=items.filter(i=>i.status==='INACTIVE').length;
+  const tot=items.length;const rate=pct(ac+ic,tot);
+  const rows=items.map(item=>{
+    const cl=(db.clients||[]).find(c=>c.id===item.client_id);
+    const pr=(db.products||[]).find(p=>p.id===item.product_id);
+    return`<tr><td>${pr?pr.name:'—'}</td><td>${cl?cl.name:'—'}</td><td>${statusBadge(item.status)}</td><td style="font-size:11px;color:var(--gray-400);">${fmtDT(item.updated_at)}</td></tr>`;
+  }).join('');
+  showModal(`<div class="modal" style="max-width:700px;">
+    <div class="modal-title"><div class="modal-title-icon">📋</div>تفاصيل برنامج العمل</div>
+    <div class="assignment-meta">
+      <div class="assignment-meta-item">👤 ${sm?sm.name:'—'}</div>
+      <div class="assignment-meta-item">🗺️ ${reg?reg.name:'—'}</div>
+      <div class="assignment-meta-item">📅 ${fmtDate(a.work_date)}</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value">${tot}</div><div class="stat-label">المهام</div></div>
+      <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value text-success">${ac}</div><div class="stat-label">ACTIVE</div></div>
+      <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value text-danger">${ic}</div><div class="stat-label">NON ACTIVE</div></div>
+      <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value">${rate}%</div><div class="stat-label">الإنجاز</div></div>
+    </div>${progressBar(rate,'10px')}
+    <div style="margin-top:14px;" class="table-wrapper"><table>
+      <thead><tr><th>المنتج</th><th>الزبون</th><th>الحالة</th><th>آخر تحديث</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--gray-400);">لا توجد مهام</td></tr>'}</tbody>
+    </table></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal();editAsgn('${id}')">✏️ تعديل</button>
+      <button class="btn btn-outline" onclick="closeModal()">إغلاق</button>
+    </div>
+  </div>`);
+}
+function delAsgn(id){
+  if(!confirm('هل أنت متأكد من حذف هذا البرنامج؟'))return;
+  const db=getDB();db.daily_assignments=db.daily_assignments.filter(a=>a.id!==id);
+  saveDB(db);toast('تم حذف برنامج العمل','success');renderAssignments();
+}
+
+/* ══════════════════════════════════════════════════════════
+   CREATE / EDIT ASSIGNMENT (simplified)
+══════════════════════════════════════════════════════════ */
+function renderCreateAssignment(editId=null){
+  const db=getDB();const{salesmen=[],regions=[],clients=[],products=[]}=db;
+  if(!salesmen.length||!regions.length||!clients.length||!products.length){
+    document.getElementById('mainContent').innerHTML=`<div class="page">
+      <div class="page-header"><div class="page-title"><div class="page-title-icon">+</div>إنشاء برنامج عمل</div></div>
+      <div class="card"><div class="alert alert-warning">يجب إضافة البيانات الأساسية أولاً.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          ${!salesmen.length?'<button class="btn btn-primary btn-sm" onclick="navigate(\'salesmen\')">+ إضافة مندوب</button>':''}
+          ${!regions.length?'<button class="btn btn-primary btn-sm" onclick="navigate(\'regions\')">+ إضافة منطقة</button>':''}
+          ${!clients.length?'<button class="btn btn-primary btn-sm" onclick="navigate(\'clients\')">+ إضافة زبون</button>':''}
+          ${!products.length?'<button class="btn btn-primary btn-sm" onclick="navigate(\'products\')">+ إضافة منتج</button>':''}
+        </div>
+      </div>
+    </div>`;return;
+  }
+
+  let ed=null,edCl=[],edPr=[];
+  if(editId){
+    ed=db.daily_assignments.find(a=>a.id===editId);
+    if(ed){const its=db.assignment_items.filter(i=>i.assignment_id===editId);
+      edCl=[...new Set(its.map(i=>i.client_id))];edPr=[...new Set(its.map(i=>i.product_id))];}
+  }
+  const today=algeriaDate();
+
+  const smOpts=salesmen.map(s=>`<option value="${s.id}" ${ed&&ed.salesman_id===s.id?'selected':''}>${s.name}</option>`).join('');
+  const rgOpts=regions.map(r=>`<option value="${r.id}" ${ed&&ed.region_id===r.id?'selected':''}>${r.name}</option>`).join('');
+
+  const prMsItems=products.map(p=>({id:p.id,label:p.name,sub:p.description||''}));
+
+  document.getElementById('mainContent').innerHTML=`
+  <div class="page">
+    <div class="page-header">
+      <div><div class="page-title"><div class="page-title-icon">${editId?'✏️':'+'}</div>${editId?'تعديل برنامج العمل':'إنشاء برنامج عمل'}</div>
+      <div class="page-subtitle">سيتم تصفية الزبائن تلقائياً حسب المندوب والمنطقة</div></div>
+      <button class="btn btn-outline" onclick="navigate('assignments')">← رجوع</button>
+    </div>
+    <div class="card">
+      <div style="background:var(--gray-50);border-radius:var(--radius);padding:16px;margin-bottom:20px;border:1px solid var(--gray-200);">
+        <div style="font-size:12px;font-weight:700;color:var(--gray-500);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;">① المعلومات الأساسية</div>
+        <div class="form-row">
+          <div class="form-col">
+            <label class="form-label">المندوب *</label>
+            <select class="form-control" id="ca_sm" onchange="caOnSmOrRgChange()">
+              <option value="">اختر المندوب</option>${smOpts}
+            </select>
+          </div>
+          <div class="form-col">
+            <label class="form-label">المنطقة *</label>
+            <select class="form-control" id="ca_rg" onchange="caOnSmOrRgChange()">
+              <option value="">اختر المنطقة</option>${rgOpts}
+            </select>
+          </div>
+          <div class="form-col">
+            <label class="form-label">تاريخ العمل *</label>
+            <input type="date" class="form-control" id="ca_dt" value="${ed?ed.work_date:today}">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-col">
+          <label class="form-label">الزبائن * <span id="ca_cl_badge" style="font-size:11px;color:var(--gray-400);font-weight:400;"></span></label>
+          <div id="ca_cl_container">
+            <div style="border:1.5px dashed var(--gray-300);border-radius:var(--radius);padding:20px;text-align:center;color:var(--gray-400);font-size:13px;">
+              اختر مندوباً ومنطقة أولاً لتصفية الزبائن
+            </div>
+          </div>
+        </div>
+        <div class="form-col">
+          <label class="form-label">المنتجات *</label>
+          ${buildMsHtml('ca_pr', prMsItems, edPr, 'بحث عن منتج...')}
+        </div>
+      </div>
+
+      <div id="ca_prev" style="margin-top:4px;"></div>
+
+      <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-lg" onclick="${editId?`doUpdateAsgn('${editId}')`:' doCreateAsgn()'}">
+          ${editId?'💾 حفظ التعديلات':'🚀 إنشاء برنامج العمل'}
+        </button>
+        <button class="btn btn-outline" onclick="navigate('assignments')">إلغاء</button>
+      </div>
+    </div>
+  </div>`;
+
+  window._caEditCl=edCl;
+  if(ed) caOnSmOrRgChange();
+}
+function caOnSmOrRgChange(){
+  const smId=document.getElementById('ca_sm').value;
+  const rgId=document.getElementById('ca_rg').value;
+  const db=getDB();
+  let filteredClients=[];let infoMsg='';
+
+  if(smId&&rgId){
+    const regionClients=(db.clients||[]).filter(c=>c.region_id===rgId);
+    if(regionClients.length>0){filteredClients=regionClients;
+      const rgName=(db.regions.find(r=>r.id===rgId)||{}).name||'';
+      infoMsg=`<div class="region-info-banner">🗺️ زبائن منطقة <strong>${rgName}</strong> — ${regionClients.length} زبون</div>`;
+    }else{filteredClients=db.clients||[];
+      infoMsg=`<div class="alert alert-warning" style="font-size:12px;">لا يوجد زبائن مرتبطون بهذه المنطقة — يتم عرض كل الزبائن</div>`;}
+  }else if(smId){filteredClients=db.clients||[];
+    infoMsg=`<div class="alert alert-info" style="font-size:12px;">اختر المنطقة لتصفية الزبائن</div>`;
+  }else if(rgId){const regionClients=(db.clients||[]).filter(c=>c.region_id===rgId);
+    filteredClients=regionClients.length?regionClients:(db.clients||[]);
+    const rgName=(db.regions.find(r=>r.id===rgId)||{}).name||'';
+    infoMsg=`<div class="region-info-banner">🗺️ زبائن منطقة <strong>${rgName}</strong> — ${filteredClients.length} زبون</div>`;
+  }else{
+    document.getElementById('ca_cl_container').innerHTML=`
+      <div style="border:1.5px dashed var(--gray-300);border-radius:var(--radius);padding:20px;text-align:center;color:var(--gray-400);font-size:13px;">
+        اختر مندوباً ومنطقة أولاً لتصفية الزبائن
+      </div>`;
+    document.getElementById('ca_cl_badge').textContent='';caPreview();return;
+  }
+
+  const prevSelected=window._caEditCl||[];
+  const clMsItems=filteredClients.map(c=>({id:c.id,label:c.name,sub:(db.regions.find(r=>r.id===c.region_id)||{}).name||''}));
+  const autoSelect=(smId&&rgId)?filteredClients.map(c=>c.id):prevSelected.filter(id=>filteredClients.find(c=>c.id===id));
+
+  document.getElementById('ca_cl_container').innerHTML=infoMsg+buildMsHtml('ca_cl',clMsItems,autoSelect,'بحث عن زبون...');
+  document.getElementById('ca_cl_badge').textContent=`(${filteredClients.length} زبون)`;
+  msUpdateCount2('ca_cl');caPreview();
+}
+function caPreview(){
+  const cl=msGetSelected2('ca_cl');const pr=msGetSelected2('ca_pr');
+  const n=cl.length*pr.length;const el=document.getElementById('ca_prev');if(!el)return;
+  if(cl.length>0&&pr.length>0)
+    el.innerHTML=`<div class="alert alert-info">📊 سيتم إنشاء <strong>${n}</strong> مهمة (${cl.length} زبون × ${pr.length} منتج)</div>`;
+  else el.innerHTML='';
+}
+function doCreateAsgn(){
+  const smId=document.getElementById('ca_sm').value;const rgId=document.getElementById('ca_rg').value;
+  const dt=document.getElementById('ca_dt').value;
+  const cl=msGetSelected2('ca_cl');const pr=msGetSelected2('ca_pr');
+  if(!smId||!rgId||!dt){toast('الرجاء تحديد جميع الحقول','error');return;}
+  if(!cl.length){toast('اختر زبون واحد على الأقل','error');return;}
+  if(!pr.length){toast('اختر منتج واحد على الأقل','error');return;}
+  const db=getDB();let asgnId;
+  const exist=db.daily_assignments.find(a=>a.salesman_id===smId&&a.work_date===dt&&a.region_id===rgId);
+  if(exist){if(!confirm('يوجد برنامج لهذا المندوب في نفس اليوم والمنطقة. إضافة مهام جديدة؟'))return;asgnId=exist.id;}
+  else{asgnId=uid();db.daily_assignments.push({id:asgnId,salesman_id:smId,region_id:rgId,work_date:dt,created_by:CU.id,created_at:now()});}
+  let newC=0,skipC=0;
+  cl.forEach(cId=>{pr.forEach(pId=>{
+    const dup=db.assignment_items.find(i=>i.assignment_id===asgnId&&i.client_id===cId&&i.product_id===pId);
+    if(!dup){db.assignment_items.push({id:uid(),assignment_id:asgnId,client_id:cId,product_id:pId,status:null,created_at:now(),updated_at:null,updated_by:null});newC++;}
+    else skipC++;
+  });});
+  saveDB(db);toast(`تم إنشاء ${newC} مهمة${skipC>0?' ('+skipC+' موجودة)':''}`,'success');navigate('assignments');
+}
+function editAsgn(id){window._caEditCl=[];renderCreateAssignment(id);}
+function doUpdateAsgn(id){
+  const smId=document.getElementById('ca_sm').value;const rgId=document.getElementById('ca_rg').value;
+  const dt=document.getElementById('ca_dt').value;
+  const cl=msGetSelected2('ca_cl');const pr=msGetSelected2('ca_pr');
+  if(!smId||!rgId||!dt){toast('الرجاء تحديد جميع الحقول','error');return;}
+  const db=getDB();const a=db.daily_assignments.find(x=>x.id===id);if(!a)return;
+  a.salesman_id=smId;a.region_id=rgId;a.work_date=dt;a.updated_at=now();
+  let newC=0;
+  cl.forEach(cId=>{pr.forEach(pId=>{
+    const dup=db.assignment_items.find(i=>i.assignment_id===id&&i.client_id===cId&&i.product_id===pId);
+    if(!dup){db.assignment_items.push({id:uid(),assignment_id:id,client_id:cId,product_id:pId,status:null,created_at:now(),updated_at:null,updated_by:null});newC++;}
+  });});
+  saveDB(db);toast(`تم تحديث البرنامج — ${newC} مهمة جديدة`,'success');navigate('assignments');
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESULTS (shortened)
+══════════════════════════════════════════════════════════ */
+function renderResults(){
+  const db=getDB();const today=algeriaDate();
+  const smOpts=(db.salesmen||[]).map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  const rgOpts=(db.regions||[]).map(r=>`<option value="${r.id}">${r.name}</option>`).join('');
+  document.getElementById('mainContent').innerHTML=`
+  <div class="page">
+    <div class="page-header"><div><div class="page-title"><div class="page-title-icon">📈</div>النتائج</div><div class="page-subtitle">متابعة نتائج المندوبين</div></div></div>
+    <div class="card">
+      <div class="filter-row">
+        <input type="date" class="form-control" id="rf_dt" value="${today}" onchange="loadRes()">
+        <select class="form-control" id="rf_sm" onchange="loadRes()"><option value="">كل المندوبين</option>${smOpts}</select>
+        <select class="form-control" id="rf_rg" onchange="loadRes()"><option value="">كل المناطق</option>${rgOpts}</select>
+        <select class="form-control" id="rf_st" onchange="loadRes()">
+          <option value="">كل الحالات</option><option value="ACTIVE">ACTIVE</option>
+          <option value="INACTIVE">NON ACTIVE</option><option value="pending">بانتظار</option>
+        </select>
+        <input type="text" class="form-control" id="rf_q" placeholder="بحث..." oninput="loadRes()">
+      </div>
+      <div id="resContent"></div>
+    </div>
+  </div>`;loadRes();
+}
+function loadRes(){
+  const db=getDB();
+  const fd=document.getElementById('rf_dt').value;const fs=document.getElementById('rf_sm').value;
+  const fr=document.getElementById('rf_rg').value;const fst=document.getElementById('rf_st').value;
+  const fq=(document.getElementById('rf_q').value||'').toLowerCase();
+  let asgns=db.daily_assignments||[];
+  if(fd)asgns=asgns.filter(a=>a.work_date===fd);if(fs)asgns=asgns.filter(a=>a.salesman_id===fs);
+  if(fr)asgns=asgns.filter(a=>a.region_id===fr);
+  const ids=asgns.map(a=>a.id);
+  let items=(db.assignment_items||[]).filter(i=>ids.includes(i.assignment_id));
+  if(fst==='pending')items=items.filter(i=>!i.status);else if(fst)items=items.filter(i=>i.status===fst);
+  if(fq){items=items.filter(i=>{
+    const cl=(db.clients||[]).find(c=>c.id===i.client_id);const pr=(db.products||[]).find(p=>p.id===i.product_id);
+    const a=asgns.find(x=>x.id===i.assignment_id);const sm=a?(db.salesmen||[]).find(s=>s.id===a.salesman_id):null;
+    const rg=a?(db.regions||[]).find(r=>r.id===a.region_id):null;
+    return[(cl||{}).name,(pr||{}).name,(sm||{}).name,(rg||{}).name].some(v=>(v||'').toLowerCase().includes(fq));
+  });}
+  const ac=items.filter(i=>i.status==='ACTIVE').length;const ic=items.filter(i=>i.status==='INACTIVE').length;
+  const pc=items.filter(i=>!i.status).length;const tot=items.length;const rate=pct(ac+ic,tot);
+  const rows=items.slice(0,300).map(item=>{
+    const cl=(db.clients||[]).find(c=>c.id===item.client_id);const pr=(db.products||[]).find(p=>p.id===item.product_id);
+    const a=asgns.find(x=>x.id===item.assignment_id);
+    const sm=a?(db.salesmen||[]).find(s=>s.id===a.salesman_id):null;const rg=a?(db.regions||[]).find(r=>r.id===a.region_id):null;
+    return`<tr><td>${sm?sm.name:'—'}</td><td>${rg?rg.name:'—'}</td><td>${cl?cl.name:'—'}</td><td>${pr?pr.name:'—'}</td><td>${statusBadge(item.status)}</td><td style="font-size:11px;color:var(--gray-400);">${fmtDT(item.updated_at)}</td></tr>`;
+  }).join('');
+  document.getElementById('resContent').innerHTML=`
+  <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+    <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value">${tot}</div><div class="stat-label">إجمالي</div></div>
+    <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value text-success">${ac}</div><div class="stat-label">ACTIVE</div></div>
+    <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value text-danger">${ic}</div><div class="stat-label">NON ACTIVE</div></div>
+    <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value" style="color:var(--warning);">${pc}</div><div class="stat-label">بانتظار</div></div>
+    <div class="stat-card" style="flex:1;padding:12px;"><div class="stat-value">${rate}%</div><div class="stat-label">الإنجاز</div></div>
+  </div>
+  ${tot>0?progressBar(rate,'10px'):''}
+  ${!tot?`<div class="empty-state"><span class="empty-state-icon">📊</span><div class="empty-state-title">لا توجد نتائج</div></div>`:`
+  <div class="table-wrapper" style="margin-top:14px;"><table>
+    <thead><tr><th>المندوب</th><th>المنطقة</th><th>الزبون</th><th>المنتج</th><th>الحالة</th><th>آخر تحديث</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>${items.length>300?'<div style="text-align:center;padding:10px;font-size:12px;color:var(--gray-400);">يتم عرض أول 300 نتيجة</div>':''}</div>`}`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   LOGS (shortened)
+══════════════════════════════════════════════════════════ */
+function renderLogs(){
+  const db=getDB();const logs=(db.activity_logs||[]).slice().reverse().slice(0,500);
+  let html='';
+  if(!logs.length){html='<div class="empty-state"><span class="empty-state-icon">📝</span><div class="empty-state-title">لا توجد سجلات بعد</div></div>';}
+  else{html=logs.map(log=>{
+    const sm=(db.salesmen||[]).find(s=>s.id===log.salesman_id);
+    const cl=(db.clients||[]).find(c=>c.id===log.client_id);
+    const pr=(db.products||[]).find(p=>p.id===log.product_id);
+    const prev=log.prev_status==='ACTIVE'?'<span class="badge badge-active">● ACTIVE</span>':log.prev_status==='INACTIVE'?'<span class="badge badge-inactive">● NON ACTIVE</span>':'<span class="badge badge-gray">—</span>';
+    const next=log.new_status==='ACTIVE'?'<span class="badge badge-active">● ACTIVE</span>':log.new_status==='INACTIVE'?'<span class="badge badge-inactive">● NON ACTIVE</span>':'<span class="badge badge-gray">—</span>';
+    return`<div class="log-entry">
+      <div class="log-time">${fmtDT(log.timestamp)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex:1;">
+        <strong>${sm?sm.name:'—'}</strong><span style="color:var(--gray-300);">|</span>
+        <span>${cl?cl.name:'—'}</span><span style="color:var(--gray-300);">|</span>
+        <span>${pr?pr.name:'—'}</span><span style="color:var(--gray-300);">|</span>
+        ${prev} <span style="font-size:14px;color:var(--gray-400);">→</span> ${next}
+      </div>
+    </div>`;
+  }).join('');}
+  document.getElementById('mainContent').innerHTML=`<div class="page">
+    <div class="page-header"><div class="page-title"><div class="page-title-icon">🕐</div>سجل التغييرات</div></div>
+    <div class="card">${html}</div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SALESMEN (shortened)
+══════════════════════════════════════════════════════════ */
+function renderSalesmen(){
+  const db=getDB();const list=db.salesmen||[];
+  const rows=list.map(sm=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:10px;">
+      <div class="avatar">${(sm.name||'?')[0]}</div>
+      <div><div style="font-weight:600;">${sm.name}</div><div style="font-size:11px;color:var(--gray-400);">${sm.phone||''}</div></div>
+    </div></td>
+    <td><code style="background:var(--gray-100);padding:2px 8px;border-radius:4px;font-size:12px;">${sm.username}</code></td>
+    <td><span class="badge badge-info">مندوب</span></td>
+    <td style="color:var(--gray-500);font-size:12px;">${fmtDate(sm.created_at)}</td>
+    <td><div style="display:flex;gap:6px;">
+      <button class="btn btn-sm btn-outline" onclick="editSm('${sm.id}')">✏️</button>
+      <button class="btn btn-sm btn-danger" onclick="delSm('${sm.id}')">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+  document.getElementById('mainContent').innerHTML=`<div class="page">
+    <div class="page-header">
+      <div><div class="page-title"><div class="page-title-icon">👥</div>المندوبون</div><div class="page-subtitle">${list.length} / 6 مندوبين</div></div>
+      ${list.length<6?'<button class="btn btn-primary" onclick="addSmModal()">+ إضافة مندوب</button>':'<span class="badge badge-gray">الحد الأقصى 6 مندوبين</span>'}
+    </div>
+    <div class="card">
+    ${!list.length?`<div class="empty-state"><span class="empty-state-icon">👥</span><div class="empty-state-title">لا يوجد مندوبون</div>
+      <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="addSmModal()">+ إضافة مندوب</button></div>`:`
+    <div class="table-wrapper"><table>
+      <thead><tr><th>المندوب</th><th>اسم المستخدم</th><th>الدور</th><th>تاريخ الإضافة</th><th>إجراءات</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`}
+    </div>
+  </div>`;
+}
+function addSmModal(){
+  const db=getDB();if((db.salesmen||[]).length>=6){toast('الحد الأقصى 6 مندوبين','error');return;}
+  showModal(`<div class="modal"><div class="modal-title"><div class="modal-title-icon">👤</div>إضافة مندوب جديد</div>
+    <div id="mAlert"></div>
+    <div class="form-group"><label class="form-label">الاسم الكامل *</label><input type="text" class="form-control" id="sm_n" placeholder="مثال: أحمد علي"></div>
+    <div class="form-group"><label class="form-label">اسم المستخدم *</label><input type="text" class="form-control" id="sm_u" placeholder="مثال: ahmed.ali"></div>
+    <div class="form-group"><label class="form-label">كلمة المرور *</label><input type="password" class="form-control" id="sm_p"></div>
+    <div class="form-group"><label class="form-label">رقم الهاتف</label><input type="tel" class="form-control" id="sm_ph" placeholder="اختياري"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="saveSm()">💾 حفظ</button></div>
+  </div>`);
+}
+function saveSm(){
+  const n=document.getElementById('sm_n').value.trim();const u=document.getElementById('sm_u').value.trim();
+  const p=document.getElementById('sm_p').value;const ph=document.getElementById('sm_ph').value.trim();
+  if(!n||!u||!p){mAlert('الرجاء ملء جميع الحقول','error');return;}
+  const db=getDB();if(db.users.find(x=>x.username===u)){mAlert('اسم المستخدم مستخدم مسبقاً','error');return;}
+  const uid2=uid(),smId=uid();
+  db.users.push({id:uid2,username:u,password:p,role:'commercial',name:n,salesman_id:smId,created_at:now()});
+  db.salesmen.push({id:smId,user_id:uid2,username:u,name:n,phone:ph,created_at:now()});
+  saveDB(db);closeModal();toast(`تم إضافة "${n}"`,'success');renderSalesmen();
+}
+function editSm(id){
+  const db=getDB();const sm=db.salesmen.find(s=>s.id===id);if(!sm)return;
+  showModal(`<div class="modal"><div class="modal-title"><div class="modal-title-icon">✏️</div>تعديل المندوب</div>
+    <div id="mAlert"></div>
+    <div class="form-group"><label class="form-label">الاسم *</label><input type="text" class="form-control" id="sm_n" value="${sm.name}"></div>
+    <div class="form-group"><label class="form-label">رقم الهاتف</label><input type="tel" class="form-control" id="sm_ph" value="${sm.phone||''}"></div>
+    <div class="form-group"><label class="form-label">كلمة مرور جديدة <span style="font-size:11px;color:var(--gray-400);">(اتركها فارغة للإبقاء)</span></label>
+      <input type="password" class="form-control" id="sm_p"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="updateSm('${id}')">💾 حفظ</button></div>
+  </div>`);
+}
+function updateSm(id){
+  const n=document.getElementById('sm_n').value.trim();const ph=document.getElementById('sm_ph').value.trim();const p=document.getElementById('sm_p').value;
+  if(!n){mAlert('الاسم مطلوب','error');return;}
+  const db=getDB();const sm=db.salesmen.find(s=>s.id===id);if(!sm)return;
+  sm.name=n;sm.phone=ph;const user=db.users.find(u=>u.id===sm.user_id);
+  if(user){user.name=n;if(p)user.password=p;}
+  saveDB(db);closeModal();toast('تم تحديث المندوب','success');renderSalesmen();
+}
+function delSm(id){
+  if(!confirm('حذف هذا المندوب؟'))return;
+  const db=getDB();const sm=db.salesmen.find(s=>s.id===id);if(!sm)return;
+  db.salesmen=db.salesmen.filter(s=>s.id!==id);db.users=db.users.filter(u=>u.id!==sm.user_id);
+  saveDB(db);toast('تم الحذف','success');renderSalesmen();
+}
+
+/* ══════════════════════════════════════════════════════════
+   CLIENTS (shortened)
+══════════════════════════════════════════════════════════ */
+function renderClients(){
+  const db=getDB();const list=db.clients||[];const regions=db.regions||[];
+  const rgOpts=regions.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');
+  document.getElementById('mainContent').innerHTML=`<div class="page">
+    <div class="page-header">
+      <div><div class="page-title"><div class="page-title-icon">🏪</div>الزبائن</div><div class="page-subtitle">${list.length} زبون</div></div>
+      <button class="btn btn-primary" onclick="addClModal()">+ إضافة زبون</button>
+    </div>
+    <div class="card">
+      <div class="filter-row">
+        <div style="position:relative;flex:1;min-width:180px;">
+          <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--gray-400);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="form-control" id="cl_q" placeholder="بحث عن زبون..." oninput="filterCl()" style="padding-right:38px;">
+        </div>
+        <select class="form-control" id="cl_rg" onchange="filterCl()" style="max-width:180px;">
+          <option value="">كل المناطق</option>${rgOpts}
+        </select>
+      </div>
+      ${!list.length?`<div class="empty-state"><span class="empty-state-icon">🏪</span><div class="empty-state-title">لا يوجد زبائن</div>
+        <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="addClModal()">+ إضافة</button></div>`:`
+      <div class="table-wrapper"><table>
+        <thead><tr><th>اسم الزبون</th><th>المنطقة</th><th>العنوان</th><th>إجراءات</th></tr></thead>
+        <tbody id="clTbody">${clRows(list,regions)}</tbody>
+      </table></div>`}
+    </div>
+  </div>`;
+}
+function clRows(list,regions){
+  return list.map(c=>{
+    const rg=regions.find(r=>r.id===c.region_id);
+    return`<tr><td style="font-weight:600;">${c.name}</td><td>${rg?rg.name:'—'}</td>
+    <td style="font-size:12px;color:var(--gray-500);">${c.address||'—'}</td>
+    <td><div style="display:flex;gap:6px;">
+      <button class="btn btn-sm btn-outline" onclick="addClModal('${c.id}')">✏️</button>
+      <button class="btn btn-sm btn-danger" onclick="delCl('${c.id}')">🗑️</button>
+    </div></td></tr>`;
+  }).join('');
+}
+function filterCl(){
+  const db=getDB();const q=(document.getElementById('cl_q').value||'').toLowerCase();const rg=document.getElementById('cl_rg').value;
+  let list=db.clients||[];if(q)list=list.filter(c=>(c.name||'').toLowerCase().includes(q)||(c.address||'').toLowerCase().includes(q));
+  if(rg)list=list.filter(c=>c.region_id===rg);
+  const tbody=document.getElementById('clTbody');
+  if(tbody)tbody.innerHTML=clRows(list,db.regions||[])||'<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--gray-400);">لا توجد نتائج</td></tr>';
+}
+function addClModal(editId=null){
+  const db=getDB();const c=editId?db.clients.find(x=>x.id===editId):null;
+  const rgOpts=(db.regions||[]).map(r=>`<option value="${r.id}" ${c&&c.region_id===r.id?'selected':''}>${r.name}</option>`).join('');
+  showModal(`<div class="modal"><div class="modal-title"><div class="modal-title-icon">🏪</div>${c?'تعديل الزبون':'إضافة زبون جديد'}</div>
+    <div id="mAlert"></div>
+    <div class="form-group"><label class="form-label">اسم الزبون *</label><input type="text" class="form-control" id="cl_n" value="${c?c.name:''}" placeholder="اسم الزبون"></div>
+    <div class="form-group"><label class="form-label">المنطقة</label><select class="form-control" id="cl_r"><option value="">اختر منطقة</option>${rgOpts}</select></div>
+    <div class="form-group"><label class="form-label">العنوان</label><input type="text" class="form-control" id="cl_a" value="${c?c.address||'':''}" placeholder="اختياري"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="saveCl(${editId?`'${editId}'`:null})">💾 حفظ</button></div>
+  </div>`);
+}
+function saveCl(editId=null){
+  const n=document.getElementById('cl_n').value.trim();const r=document.getElementById('cl_r').value;const a=document.getElementById('cl_a').value.trim();
+  if(!n){mAlert('اسم الزبون مطلوب','error');return;}
+  const db=getDB();
+  if(editId){const c=db.clients.find(x=>x.id===editId);if(c){c.name=n;c.region_id=r;c.address=a;}}
+  else db.clients.push({id:uid(),name:n,region_id:r,address:a,created_at:now()});
+  saveDB(db);closeModal();toast(editId?'تم التحديث':`تم إضافة "${n}"`,'success');renderClients();
+}
+function delCl(id){
+  if(!confirm('حذف هذا الزبون؟'))return;
+  const db=getDB();db.clients=db.clients.filter(c=>c.id!==id);saveDB(db);toast('تم الحذف','success');renderClients();
+}
+
+/* ══════════════════════════════════════════════════════════
+   PRODUCTS (shortened)
+══════════════════════════════════════════════════════════ */
+function renderProducts(){
+  const db=getDB();const list=db.products||[];
+  const rows=list.map(p=>`<tr>
+    <td style="font-weight:600;">${p.name}</td><td style="font-size:12px;color:var(--gray-500);">${p.description||'—'}</td>
+    <td style="font-size:12px;color:var(--gray-500);">${fmtDate(p.created_at)}</td>
+    <td><div style="display:flex;gap:6px;">
+      <button class="btn btn-sm btn-outline" onclick="addPrModal('${p.id}')">✏️</button>
+      <button class="btn btn-sm btn-danger" onclick="delPr('${p.id}')">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+  document.getElementById('mainContent').innerHTML=`<div class="page">
+    <div class="page-header">
+      <div><div class="page-title"><div class="page-title-icon">📦</div>المنتجات</div><div class="page-subtitle">${list.length} منتج</div></div>
+      <button class="btn btn-primary" onclick="addPrModal()">+ إضافة منتج</button>
+    </div>
+    <div class="card">
+      <div style="position:relative;margin-bottom:16px;">
+        <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--gray-400);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="form-control" id="pr_q" placeholder="بحث عن منتج..." oninput="filterPr()" style="padding-right:38px;">
+      </div>
+      ${!list.length?`<div class="empty-state"><span class="empty-state-icon">📦</span><div class="empty-state-title">لا توجد منتجات</div>
+        <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="addPrModal()">+ إضافة</button></div>`:`
+      <div class="table-wrapper"><table>
+        <thead><tr><th>اسم المنتج</th><th>الوصف</th><th>تاريخ الإضافة</th><th>إجراءات</th></tr></thead>
+        <tbody id="prTbody">${rows}</tbody>
+      </table></div>`}
+    </div>
+  </div>`;
+}
+function filterPr(){
+  const db=getDB();const q=(document.getElementById('pr_q').value||'').toLowerCase();
+  const list=(db.products||[]).filter(p=>(p.name||'').toLowerCase().includes(q)||(p.description||'').toLowerCase().includes(q));
+  const tbody=document.getElementById('prTbody');if(!tbody)return;
+  tbody.innerHTML=list.map(p=>`<tr><td style="font-weight:600;">${p.name}</td><td style="font-size:12px;">${p.description||'—'}</td>
+    <td style="font-size:12px;color:var(--gray-500);">${fmtDate(p.created_at)}</td>
+    <td><div style="display:flex;gap:6px;">
+      <button class="btn btn-sm btn-outline" onclick="addPrModal('${p.id}')">✏️</button>
+      <button class="btn btn-sm btn-danger" onclick="delPr('${p.id}')">🗑️</button>
+    </div></td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--gray-400);">لا توجد نتائج</td></tr>';
+}
+function addPrModal(editId=null){
+  const db=getDB();const p=editId?db.products.find(x=>x.id===editId):null;
+  showModal(`<div class="modal"><div class="modal-title"><div class="modal-title-icon">📦</div>${p?'تعديل المنتج':'إضافة منتج جديد'}</div>
+    <div id="mAlert"></div>
+    <div class="form-group"><label class="form-label">اسم المنتج *</label><input type="text" class="form-control" id="pr_n" value="${p?p.name:''}" placeholder="اسم المنتج"></div>
+    <div class="form-group"><label class="form-label">الوصف</label><input type="text" class="form-control" id="pr_d" value="${p?p.description||'':''}" placeholder="اختياري"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="savePr(${editId?`'${editId}'`:null})">💾 حفظ</button></div>
+  </div>`);
+}
+function savePr(editId=null){
+  const n=document.getElementById('pr_n').value.trim();const d=document.getElementById('pr_d').value.trim();
+  if(!n){mAlert('اسم المنتج مطلوب','error');return;}
+  const db=getDB();
+  if(editId){const p=db.products.find(x=>x.id===editId);if(p){p.name=n;p.description=d;}}
+  else db.products.push({id:uid(),name:n,description:d,created_at:now()});
+  saveDB(db);closeModal();toast(editId?'تم التحديث':`تم إضافة "${n}"`,'success');renderProducts();
+}
+function delPr(id){
+  if(!confirm('حذف هذا المنتج؟'))return;
+  const db=getDB();db.products=db.products.filter(p=>p.id!==id);saveDB(db);toast('تم الحذف','success');renderProducts();
+}
+
+/* ══════════════════════════════════════════════════════════
+   REGIONS (shortened)
+══════════════════════════════════════════════════════════ */
+function renderRegions(){
+  const db=getDB();const list=db.regions||[];
+  const rows=list.map(r=>`<tr>
+    <td style="font-weight:600;">${r.name}</td><td style="font-size:12px;color:var(--gray-500);">${r.description||'—'}</td>
+    <td style="font-size:12px;color:var(--gray-500);">${fmtDate(r.created_at)}</td>
+    <td><div style="display:flex;gap:6px;">
+      <button class="btn btn-sm btn-outline" onclick="addRgModal('${r.id}')">✏️</button>
+      <button class="btn btn-sm btn-danger" onclick="delRg('${r.id}')">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+  document.getElementById('mainContent').innerHTML=`<div class="page">
+    <div class="page-header">
+      <div><div class="page-title"><div class="page-title-icon">🗺️</div>المناطق</div><div class="page-subtitle">${list.length} منطقة</div></div>
+      <button class="btn btn-primary" onclick="addRgModal()">+ إضافة منطقة</button>
+    </div>
+    <div class="card">
+    ${!list.length?`<div class="empty-state"><span class="empty-state-icon">🗺️</span><div class="empty-state-title">لا توجد مناطق</div>
+      <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="addRgModal()">+ إضافة</button></div>`:`
+    <div class="table-wrapper"><table>
+      <thead><tr><th>المنطقة</th><th>الوصف</th><th>تاريخ الإضافة</th><th>إجراءات</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`}
+    </div>
+  </div>`;
+}
+function addRgModal(editId=null){
+  const db=getDB();const r=editId?db.regions.find(x=>x.id===editId):null;
+  showModal(`<div class="modal"><div class="modal-title"><div class="modal-title-icon">🗺️</div>${r?'تعديل المنطقة':'إضافة منطقة جديدة'}</div>
+    <div id="mAlert"></div>
+    <div class="form-group"><label class="form-label">اسم المنطقة *</label><input type="text" class="form-control" id="rg_n" value="${r?r.name:''}" placeholder="اسم المنطقة"></div>
+    <div class="form-group"><label class="form-label">الوصف</label><input type="text" class="form-control" id="rg_d" value="${r?r.description||'':''}" placeholder="اختياري"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="saveRg(${editId?`'${editId}'`:null})">💾 حفظ</button></div>
+  </div>`);
+}
+function saveRg(editId=null){
+  const n=document.getElementById('rg_n').value.trim();const d=document.getElementById('rg_d').value.trim();
+  if(!n){mAlert('اسم المنطقة مطلوب','error');return;}
+  const db=getDB();
+  if(editId){const r=db.regions.find(x=>x.id===editId);if(r){r.name=n;r.description=d;}}
+  else db.regions.push({id:uid(),name:n,description:d,created_at:now()});
+  saveDB(db);closeModal();toast(editId?'تم التحديث':`تم إضافة "${n}"`,'success');renderRegions();
+}
+function delRg(id){
+  if(!confirm('حذف هذه المنطقة؟'))return;
+  const db=getDB();db.regions=db.regions.filter(r=>r.id!==id);saveDB(db);toast('تم الحذف','success');renderRegions();
+}
+
+/* ══════════════════════════════════════════════════════════
+   COMMERCIAL — Modern Client Cards with Icons
+══════════════════════════════════════════════════════════ */
+function renderCommercial(){
+  const db=getDB();
+  const sm=db.salesmen.find(s=>s.user_id===CU.id);
+  if(!sm){
+    document.getElementById('mainContent').innerHTML=`<div class="page"><div class="card">
+      <div class="alert alert-error">لم يتم ربط حسابك بمندوب. الرجاء التواصل مع المشرف.</div>
+    </div></div>`;return;
+  }
+  const today=algeriaDate();
+  const assigns=db.daily_assignments.filter(a=>a.salesman_id===sm.id&&a.work_date===today);
+  const ids=assigns.map(a=>a.id);
+  const allItems=db.assignment_items.filter(i=>ids.includes(i.assignment_id));
+  
+  // Filter clients by salesman's region
+  const smRegionId=sm.region_id;
+  const filteredItems=smRegionId ? allItems.filter(i=>{
+    const cl=db.clients.find(c=>c.id===i.client_id);
+    return cl && cl.region_id===smRegionId;
+  }) : allItems;
+
+  const ac=filteredItems.filter(i=>i.status==='ACTIVE').length;
+  const ic=filteredItems.filter(i=>i.status==='INACTIVE').length;
+  const pc=filteredItems.filter(i=>!i.status).length;
+  const tot=filteredItems.length;const rate=pct(ac+ic,tot);
+  const todayReg=assigns.length?(db.regions.find(r=>r.id===assigns[0].region_id)||{}).name||'—':'—';
+  const lastSync=db.last_sync;
+  const pq=(db.sync_queue||[]).filter(q=>q.salesman_id===sm.id).length;
+
+  window._commItems=filteredItems;
+  window._commSm=sm;
+  window._commDb=db;
+
+  document.getElementById('mainContent').innerHTML=`
+  <div class="page" style="max-width:700px;margin:0 auto;">
+    <!-- HEADER -->
+    <div class="commercial-header">
+      <div class="commercial-greeting">مرحباً 👋</div>
+      <div class="commercial-name">${sm.name}</div>
+      <div class="commercial-meta">
+        <div class="commercial-meta-item">📅 ${fmtDate(today)}</div>
+        <div class="commercial-meta-item">🗺️ ${todayReg}</div>
+        ${smRegionId?`<div class="commercial-meta-item">🏢 ${(db.regions.find(r=>r.id===smRegionId)||{}).name||''}</div>`:''}
+      </div>
+      <div class="commercial-stats-row">
+        <div class="commercial-stat"><span class="commercial-stat-value">${tot}</span><span class="commercial-stat-label">المهام</span></div>
+        <div class="commercial-stat"><span class="commercial-stat-value">${ac}</span><span class="commercial-stat-label">ACTIVE</span></div>
+        <div class="commercial-stat"><span class="commercial-stat-value">${ic}</span><span class="commercial-stat-label">NON ACTIVE</span></div>
+        <div class="commercial-stat"><span class="commercial-stat-value">${rate}%</span><span class="commercial-stat-label">الإنجاز</span></div>
+      </div>
+      ${tot>0?`<div style="margin-top:16px;"><div class="progress-bar" style="height:8px;background:rgba(255,255,255,.2);"><div style="height:100%;border-radius:4px;background:rgba(255,255,255,.9);width:${rate}%;transition:width .5s;"></div></div></div>`:''}
+    </div>
+
+    <!-- SYNC BAR -->
+    <div class="sync-bar">
+      <div class="sync-info"><div class="sync-dot ${ONLINE?'':'offline'}"></div><span>${ONLINE?'متصل':'غير متصل'}</span>
+        ${pq>0?`<span class="pending-count">${pq} معلق</span>`:''}
+      </div>
+      <div style="font-size:11px;color:var(--gray-400);">آخر مزامنة: ${lastSync?fmtDT(lastSync):'لم تتم بعد'}</div>
+      <button class="btn btn-outline btn-sm" onclick="manualSync()">↻ مزامنة</button>
+    </div>
+
+    ${pc>0?`<div class="alert alert-warning">○ ${pc} مهمة بانتظار تحديد الحالة</div>`:
+      tot>0?`<div class="alert alert-success">✓ تم تحديث جميع المهام</div>`:''}
+
+    <!-- SEARCH -->
+    ${tot>0?`
+    <div class="commercial-search-bar">
+      <svg class="commercial-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="comm_search" placeholder="🔍 بحث عن زبون أو منتج..." oninput="commercialSearchModern()" autocomplete="off">
+      <button class="commercial-search-clear" onclick="commercialClearSearchModern()" id="comm_clear" style="display:none;">✕ مسح</button>
+    </div>
+    `:''}
+
+    <!-- CLIENT CARDS -->
+    <div id="clientGrid" class="client-grid">
+      ${buildClientCards(filteredItems, db, sm)}
+    </div>
+
+    ${!tot?`<div class="empty-state"><span class="empty-state-icon">📋</span>
+      <div class="empty-state-title">لا توجد مهام لليوم</div>
+      <div class="empty-state-desc">لم يتم تخصيص برنامج عمل لك اليوم</div>
+    </div>`:''}
+  </div>`;
+
+  window._commFilter='all';
+  window._commSearch='';
+}
+
+function buildClientCards(items, db, sm){
+  if(!items.length) return '';
+  
+  // Group by client
+  const grouped={};
+  items.forEach(item=>{
+    const cl=db.clients.find(c=>c.id===item.client_id);
+    if(!cl) return;
+    const key=item.client_id;
+    if(!grouped[key]){grouped[key]={client:cl, products:[]};}
+    grouped[key].products.push(item);
+  });
+
+  // Sort clients by name
+  const sortedKeys=Object.keys(grouped).sort((a,b)=>grouped[a].client.name.localeCompare(grouped[b].client.name));
+
+  let html='';
+  sortedKeys.forEach(key=>{
+    const group=grouped[key];
+    const cl=group.client;
+    const products=group.products;
+    const total=products.length;
+    const active=products.filter(p=>p.status==='ACTIVE').length;
+    const inactive=products.filter(p=>p.status==='INACTIVE').length;
+    const pending=products.filter(p=>!p.status).length;
+    
+    html+=`
+    <div class="client-card" id="cc_${cl.id}">
+      <div class="client-card-header" onclick="toggleClient('${cl.id}')">
+        <div class="client-avatar"><span class="icon">🏢</span></div>
+        <div class="client-info">
+          <div class="client-name">${cl.name}</div>
+          <div class="client-sub">
+            <span>📦 ${total} منتج</span>
+            ${cl.address?`<span>📍 ${cl.address}</span>`:''}
+          </div>
+        </div>
+        <div class="client-stats">
+          <div class="client-stat-item"><span class="num">${active}</span><span class="lbl">ACTIVE</span></div>
+          <div class="client-stat-item"><span class="num">${inactive}</span><span class="lbl">NON ACTIVE</span></div>
+          <div class="client-stat-item"><span class="num" style="color:var(--warning);">${pending}</span><span class="lbl">بانتظار</span></div>
+        </div>
+        <div class="client-toggle">▼</div>
+      </div>
+      <div class="client-products">
+        ${products.map(p=>{
+          const pr=db.products.find(x=>x.id===p.product_id);
+          const prName=pr?pr.name:'منتج غير معروف';
+          const isAc=p.status==='ACTIVE';
+          const isIn=p.status==='INACTIVE';
+          const isPending=!p.status;
+          let cls='product-item';
+          if(isAc) cls+=' active';
+          else if(isIn) cls+=' inactive';
+          else cls+=' pending';
+          
+          return`
+          <div class="${cls}">
+            <div class="product-info">
+              <div class="product-icon">📦</div>
+              <div>
+                <div class="product-name">${prName}</div>
+                <div class="product-status">${statusBadge(p.status)}</div>
+              </div>
+            </div>
+            <div class="product-actions">
+              <button class="btn-action active ${isAc?'current':''}" onclick="setStatusModern('${p.id}','ACTIVE','${sm.id}')">
+                <span class="icon">●</span> ACTIVE
+              </button>
+              <button class="btn-action inactive ${isIn?'current':''}" onclick="setStatusModern('${p.id}','INACTIVE','${sm.id}')">
+                <span class="icon">●</span> NON ACTIVE
+              </button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+function toggleClient(clientId){
+  const card=document.getElementById(`cc_${clientId}`);
+  if(card)card.classList.toggle('expanded');
+}
+
+function commercialSearchModern(){
+  const q=document.getElementById('comm_search').value;
+  const clearBtn=document.getElementById('comm_clear');if(clearBtn)clearBtn.style.display=q?'':'none';
+  window._commSearch=q;
+  filterClientCards(q);
+}
+
+function commercialClearSearchModern(){
+  const inp=document.getElementById('comm_search');if(inp)inp.value='';
+  const clearBtn=document.getElementById('comm_clear');if(clearBtn)clearBtn.style.display='none';
+  window._commSearch='';
+  filterClientCards('');
+}
+
+function filterClientCards(q){
+  const items=window._commItems||[];
+  const db=window._commDb||getDB();
+  const sm=window._commSm;
+  if(!items.length)return;
+  
+  const qLower=(q||'').toLowerCase();
+  const filtered=items.filter(i=>{
+    const cl=db.clients.find(c=>c.id===i.client_id);
+    const pr=db.products.find(p=>p.id===i.product_id);
+    const matchClient=cl&&(cl.name||'').toLowerCase().includes(qLower);
+    const matchProduct=pr&&(pr.name||'').toLowerCase().includes(qLower);
+    return matchClient||matchProduct;
+  });
+  
+  const grid=document.getElementById('clientGrid');
+  if(!grid)return;
+  grid.innerHTML=buildClientCards(filtered, db, sm)||`<div class="empty-state"><span class="empty-state-icon">🔍</span>
+    <div class="empty-state-title">لا توجد نتائج لـ "${q}"</div>
+    <button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="commercialClearSearchModern()">مسح البحث</button>
+  </div>`;
+}
+
+function setStatusModern(itemId,newStatus,smId){
+  const db=getDB();const item=db.assignment_items.find(i=>i.id===itemId);if(!item)return;
+  const asgn=db.daily_assignments.find(a=>a.id===item.assignment_id);
+  if(!asgn||asgn.salesman_id!==smId){toast('غير مصرح بهذه العملية','error');return;}
+  const prev=item.status;if(prev===newStatus)return;
+  item.status=newStatus;item.updated_at=now();item.updated_by=CU.id;
+  db.activity_logs.push({id:uid(),salesman_id:smId,client_id:item.client_id,product_id:item.product_id,
+    assignment_id:item.assignment_id,item_id:itemId,prev_status:prev,new_status:newStatus,timestamp:now()});
+  if(!ONLINE){db.sync_queue.push({id:uid(),salesman_id:smId,item_id:itemId,status:newStatus,timestamp:now()});}
+  else{db.last_sync=now();}
+  saveDB(db);
+  toast(`تم الحفظ — ${newStatus==='ACTIVE'?'● ACTIVE':'● NON ACTIVE'}`,'success',1500);
+  renderCommercial();
+}
+
+/* ══════ INIT ══════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  initDB();
+  if(!checkSession()){document.getElementById('loginPage').classList.remove('hidden');}
+  ['loginUsername','loginPassword'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('keypress',e=>{if(e.key==='Enter')login();});
+  });
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+setInterval(()=>{if(CU&&CU.role==='supervisor'&&PAGE==='dashboard')renderDashboard();},30000);
+</script>
+</body>
+</html>
